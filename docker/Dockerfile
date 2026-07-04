@@ -11,6 +11,10 @@ RUN apk add -U --upgrade --no-cache \
     sqlite-libs \
     xmlstarlet
 
+# Some orchestrators or stale runtime configs can force /main as startup.
+# Keep compatibility by aliasing /main to the baseimage init binary.
+RUN ln -sf /init /main
+
 ARG GIT_BRANCH
 ARG COMMIT_HASH
 ARG BUILD_DATE
@@ -33,10 +37,10 @@ RUN --mount=type=bind,source=_output,target=_output \
     "windows/amd64") cp -r /_output/net6.0/win-x64 /app/readarr/bin ;; \
     *) echo "Unknown platform: $TARGETPLATFORM" && exit 1 ;; \
     esac; \
-    cp -r /_output/UI /app/readarr/bin/UI
+    if [ -d "/_output/UI" ]; then cp -r /_output/UI /app/readarr/bin/UI; fi
 
-RUN echo -e "UpdateMethod=docker\nBranch=${GIT_BRANCH}\nPackageVersion=${COMMIT_HASH}}\nPackageAuthor=pennydreadful" > /app/readarr/package_info && \
-    printf "version: ${COMMIT_HASH}}\nBuild-date: ${BUILD_DATE}" > /build_version
+RUN echo -e "UpdateMethod=docker\nBranch=${GIT_BRANCH}\nPackageVersion=${COMMIT_HASH}\nPackageAuthor=pennydreadful" > /app/readarr/package_info && \
+    printf "version: ${COMMIT_HASH}\nBuild-date: ${BUILD_DATE}" > /build_version
 
 # copy local files
 COPY docker/root/ /
@@ -45,3 +49,5 @@ COPY docker/root/ /
 EXPOSE 8787
 
 VOLUME /config
+
+ENTRYPOINT ["/init"]
