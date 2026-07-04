@@ -137,6 +137,7 @@ jobs:
           file: ./docker/Dockerfile
           platforms: "linux/amd64,linux/arm64"
           push: ${{ github.event_name == 'push' }}
+          provenance: false
           tags: ${{ steps.gr_meta.outputs.tags }}
           labels: ${{ steps.gr_meta.outputs.labels }}
           build-args: |
@@ -150,6 +151,7 @@ jobs:
           file: ./docker/Dockerfile
           platforms: "linux/amd64,linux/arm64"
           push: ${{ github.event_name == 'push' }}
+          provenance: false
           tags: ${{ steps.hc_meta.outputs.tags }}
           labels: ${{ steps.hc_meta.outputs.labels }}
           build-args: |
