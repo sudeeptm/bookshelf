@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  bookshelf:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        TARGETPLATFORM: linux/amd64
+        GIT_BRANCH: ${GIT_BRANCH:-main}
+        COMMIT_HASH: ${COMMIT_HASH:-local-dev}
+        BUILD_DATE: ${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
+        METADATA_URL: ${METADATA_URL:-https://api.bookinfo.pro}
+        HARDCOVER: ${HARDCOVER:-true}
+    image: bookshelf:local-dev
+    container_name: bookshelf
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    volumes:
+      - bookshelf-config:/config
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-UTC}
+
+volumes:
+  bookshelf-config:
+    driver: local
